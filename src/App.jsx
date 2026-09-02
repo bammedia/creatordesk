@@ -50,6 +50,25 @@ const FULFILLMENT = [
 
 const AGENCY_URL = "https://bammedia.us";
 
+// Web3Forms — submissions email to jake@bammediagroup.us
+const WEB3FORMS_KEY = "fafabfb2-d493-420c-bcdf-ad22a65f6b66";
+
+async function sendToEmail(fields, subject) {
+  const res = await fetch("https://api.web3forms.com/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({
+      access_key: WEB3FORMS_KEY,
+      subject,
+      from_name: "CreatorDesk",
+      ...fields,
+    }),
+  });
+  const data = await res.json();
+  if (!data.success) throw new Error(data.message || "Submission failed");
+  return data;
+}
+
 const PLATFORMS = ["Instagram", "TikTok", "YouTube", "Twitter / X", "Facebook", "Other"];
 const CREATOR_NICHES = [
   "Food & Dining", "Beauty", "Fashion", "Fitness", "Lifestyle",
@@ -109,8 +128,26 @@ const inputCls =
 function FreeTrial() {
   const [f, setF] = useState({ company: "", email: "" });
   const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const valid = f.company && f.email;
+
+  const submit = async () => {
+    setBusy(true);
+    setErr("");
+    try {
+      await sendToEmail(
+        { company: f.company, email: f.email, form: "Free Trial" },
+        `New free-trial request from ${f.company}`
+      );
+      setSent(true);
+    } catch (e) {
+      setErr("Something went wrong. Please try again or email us directly.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <div className="rounded-2xl border-2 border-gold bg-gold/10 p-6 sm:p-8">
@@ -144,12 +181,13 @@ function FreeTrial() {
             <input className={inputCls} value={f.company} onChange={set("company")} placeholder="Company name" />
             <input className={inputCls} value={f.email} onChange={set("email")} placeholder="Work email" />
             <button
-              disabled={!valid}
-              onClick={() => setSent(true)}
+              disabled={!valid || busy}
+              onClick={submit}
               className="rounded-xl bg-ink py-3 font-semibold text-white transition enabled:hover:bg-[#1f2740] disabled:opacity-40"
             >
-              Claim my free influencer
+              {busy ? "Sending…" : "Claim my free influencer"}
             </button>
+            {err && <p className="text-xs text-red-600">{err}</p>}
           </div>
         </div>
       )}
@@ -443,8 +481,30 @@ function CreatorSignup() {
     followers: "", niche: CREATOR_NICHES[0], city: "", rate: "", about: "",
   });
   const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const valid = f.name && f.email && f.handle && f.followers;
+
+  const submit = async () => {
+    setBusy(true);
+    setErr("");
+    try {
+      await sendToEmail(
+        {
+          name: f.name, email: f.email, handle: f.handle, platform: f.platform,
+          followers: f.followers, niche: f.niche, city: f.city, rate: f.rate,
+          about: f.about, form: "Creator Signup",
+        },
+        `New creator application — ${f.handle}`
+      );
+      setSent(true);
+    } catch (e) {
+      setErr("Something went wrong. Please try again or email us directly.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   if (sent) {
     return (
@@ -500,12 +560,13 @@ function CreatorSignup() {
           <textarea className={`${inputCls} min-h-[100px] resize-y`} value={f.about} onChange={set("about")} placeholder="Style, audience, best-performing content, brands you've worked with…" />
         </Field>
         <button
-          disabled={!valid}
-          onClick={() => setSent(true)}
+          disabled={!valid || busy}
+          onClick={submit}
           className="w-full rounded-xl bg-ink py-3.5 font-semibold text-white transition enabled:hover:bg-[#1f2740] disabled:opacity-40"
         >
-          Join the roster
+          {busy ? "Sending…" : "Join the roster"}
         </button>
+        {err && <p className="text-center text-xs text-red-600">{err}</p>}
         {!valid && <p className="text-center text-xs text-slate-400">Name, email, handle, and follower count are required.</p>}
       </div>
     </div>
@@ -518,8 +579,26 @@ function CreatorSignup() {
 function Contact() {
   const [f, setF] = useState({ name: "", email: "", topic: "General question", message: "" });
   const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const valid = f.name && f.email && f.message;
+
+  const submit = async () => {
+    setBusy(true);
+    setErr("");
+    try {
+      await sendToEmail(
+        { name: f.name, email: f.email, topic: f.topic, message: f.message, form: "Contact" },
+        `New contact message — ${f.topic}`
+      );
+      setSent(true);
+    } catch (e) {
+      setErr("Something went wrong. Please try again or email us directly.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-12">
@@ -533,9 +612,9 @@ function Contact() {
             and a real person gets back to you.
           </p>
           <div className="mt-8 space-y-4">
-            <a href="mailto:hi@bammedia.us" className="flex items-center gap-3 text-ink hover:opacity-70">
+            <a href="mailto:jake@bammediagroup.us" className="flex items-center gap-3 text-ink hover:opacity-70">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ink text-gold"><Mail size={17} /></span>
-              hi@bammedia.us
+              jake@bammediagroup.us
             </a>
             <a href="tel:+10000000000" className="flex items-center gap-3 text-ink hover:opacity-70">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ink text-gold"><Phone size={17} /></span>
@@ -572,12 +651,13 @@ function Contact() {
                 <textarea className={`${inputCls} min-h-[120px] resize-y`} value={f.message} onChange={set("message")} placeholder="How can we help?" />
               </Field>
               <button
-                disabled={!valid}
-                onClick={() => setSent(true)}
+                disabled={!valid || busy}
+                onClick={submit}
                 className="w-full rounded-xl bg-ink py-3.5 font-semibold text-white transition enabled:hover:bg-[#1f2740] disabled:opacity-40"
               >
-                Send message
+                {busy ? "Sending…" : "Send message"}
               </button>
+              {err && <p className="text-xs text-red-600">{err}</p>}
             </div>
           )}
         </div>
@@ -671,7 +751,7 @@ export default function App() {
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-paper/90 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <button onClick={goHome} className="font-display text-lg font-bold tracking-tight">
-            creator<span className="text-gold [-webkit-text-stroke:1px_#141A2E]">desk</span>
+            creator<span className="text-gold">desk</span>
           </button>
 
           <nav className="hidden items-center gap-1 md:flex">
@@ -740,7 +820,7 @@ export default function App() {
       <footer className="mt-8 border-t border-slate-200">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-slate-500">
           <span className="font-display font-bold text-ink">
-            creator<span className="text-gold [-webkit-text-stroke:1px_#141A2E]">desk</span>
+            creator<span className="text-gold">desk</span>
           </span>
           <div className="flex flex-wrap gap-5">
             <button onClick={goHome} className="hover:text-ink">For brands</button>
