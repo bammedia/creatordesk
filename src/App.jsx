@@ -750,6 +750,103 @@ function AgencyPanel() {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Screen: How It Works
+// ─────────────────────────────────────────────────────────────
+const HIW_STEPS = [
+  {
+    icon: Target,
+    title: "Pick your plan",
+    body: "Choose the tier that fits how much content you want each month — 2–3, 4–6, or 7–9 creators. No contracts, cancel anytime.",
+  },
+  {
+    icon: Building2,
+    title: "Tell us about your company",
+    body: "Fill in a short brief: who you are, your industry, your audience, and the vibe you're going for. Change it anytime and your matches adjust.",
+  },
+  {
+    icon: Users,
+    title: "We line up your creators",
+    body: "Our team sources vetted influencers that fit your brand and books them for the month — across any industry, not just food.",
+  },
+  {
+    icon: Check,
+    title: "You just confirm",
+    body: "We handle the booking and scheduling. You give the final thumbs-up on the creators lined up for you — that's the only step on your plate.",
+  },
+  {
+    icon: Package,
+    title: "You comp your product or service",
+    body: "Send the creator your product, or host them for your service in person. They create authentic content and post it to their audience.",
+  },
+  {
+    icon: Sparkles,
+    title: "Content goes live",
+    body: "Fresh creator posts feature your brand every month, putting you in front of new, engaged audiences — on autopilot.",
+  },
+];
+
+function HowItWorks({ onGetStarted, onCreator }) {
+  return (
+    <div className="mx-auto max-w-5xl px-6 py-16">
+      <div className="max-w-2xl">
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-ink px-3 py-1 text-xs font-semibold text-gold">
+          <Sparkles size={13} /> How it works
+        </div>
+        <h1 className="font-display text-4xl font-bold leading-tight text-ink sm:text-5xl">
+          Creators for your brand, without the agency overhead.
+        </h1>
+        <p className="mt-4 text-lg text-slate-600">
+          CreatorDesk connects vetted content creators with companies in any
+          industry. Here's how it goes from sign-up to content in your feed.
+        </p>
+      </div>
+
+      <div className="mt-14 grid gap-6 sm:grid-cols-2">
+        {HIW_STEPS.map((s, i) => {
+          const Icon = s.icon;
+          return (
+            <div key={s.title} className="relative rounded-2xl border border-slate-200 bg-white p-6">
+              <div className="mb-4 flex items-center gap-3">
+                <span className="flex h-11 w-11 flex-none items-center justify-center rounded-xl bg-ink text-gold">
+                  <Icon size={20} />
+                </span>
+                <span className="font-display text-sm font-bold text-slate-400">
+                  Step {i + 1}
+                </span>
+              </div>
+              <h3 className="font-display text-xl font-bold text-ink">{s.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.body}</p>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-14 flex flex-col items-center gap-4 rounded-3xl bg-ink p-10 text-center text-white sm:p-14">
+        <h2 className="font-display text-3xl font-bold">Ready to get creators posting?</h2>
+        <p className="max-w-md text-slate-300">
+          Pick a plan and tell us about your brand — we'll line up your first
+          creators. Or try it free with one influencer.
+        </p>
+        <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
+          <button
+            onClick={onGetStarted}
+            className="rounded-xl bg-gold px-6 py-3.5 font-semibold text-ink transition hover:brightness-105"
+          >
+            See plans
+          </button>
+          <button
+            onClick={onCreator}
+            className="rounded-xl bg-white/10 px-6 py-3.5 font-semibold text-white transition hover:bg-white/20"
+          >
+            I'm a creator
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
 // Screen: Agency (bammedia.us)
 // ─────────────────────────────────────────────────────────────
 function Agency() {
@@ -781,6 +878,7 @@ export default function App() {
 
   const NAV = [
     { id: "home", label: "For brands" },
+    { id: "how", label: "How it works" },
     { id: "creators", label: "Join as a creator" },
     { id: "agency", label: "Full-service agency" },
     { id: "contact", label: "Contact" },
@@ -853,6 +951,12 @@ export default function App() {
           )}
         </>
       )}
+      {page === "how" && (
+        <HowItWorks
+          onGetStarted={() => { setStep("tiers"); goHome(); }}
+          onCreator={() => go("creators")}
+        />
+      )}
       {page === "creators" && <CreatorSignup />}
       {page === "contact" && <Contact />}
       {page === "agency" && <Agency />}
@@ -864,6 +968,7 @@ export default function App() {
           </span>
           <div className="flex flex-wrap gap-5">
             <button onClick={goHome} className="hover:text-ink">For brands</button>
+            <button onClick={() => go("how")} className="hover:text-ink">How it works</button>
             <button onClick={() => go("creators")} className="hover:text-ink">Join as a creator</button>
             <button onClick={() => go("contact")} className="hover:text-ink">Contact</button>
             <a href={AGENCY_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-ink">
