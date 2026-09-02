@@ -12,7 +12,7 @@ const TIERS = [
   {
     id: "starter",
     name: "Starter",
-    price: 250,
+    price: 399,
     min: 2, max: 3,
     label: "2–3 influencers / month",
     blurb: "Test the waters with a steady trickle of creators.",
@@ -20,7 +20,7 @@ const TIERS = [
   {
     id: "growth",
     name: "Growth",
-    price: 450,
+    price: 699,
     min: 4, max: 6,
     label: "4–6 influencers / month",
     blurb: "A consistent content stream that keeps you in feeds.",
@@ -28,7 +28,7 @@ const TIERS = [
   {
     id: "scale",
     name: "Scale",
-    price: 750,
+    price: 999,
     min: 7, max: 9,
     label: "7–9 influencers / month",
     blurb: "Maximum reach — dominate your niche every month.",
@@ -54,6 +54,16 @@ const AGENCY_URL = "https://bammedia.us";
 const WEB3FORMS_KEY = "fafabfb2-d493-420c-bcdf-ad22a65f6b66";
 
 async function sendToEmail(fields, subject) {
+  // Build a clean readable message body from the fields so Web3Forms'
+  // spam filter sees normal prose instead of raw URLs / money symbols
+  // sitting in isolated fields (a common false-positive trigger).
+  const lines = Object.entries(fields)
+    .filter(([, v]) => v !== undefined && v !== null && String(v).trim() !== "")
+    .map(([k, v]) => {
+      const label = k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+      return `${label}: ${v}`;
+    });
+
   const res = await fetch("https://api.web3forms.com/submit", {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
@@ -61,7 +71,9 @@ async function sendToEmail(fields, subject) {
       access_key: WEB3FORMS_KEY,
       subject,
       from_name: "CreatorDesk",
+      botcheck: false,
       ...fields,
+      message: lines.join("\n"),
     }),
   });
   const data = await res.json();
