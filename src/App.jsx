@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import {
   Check, ChevronRight, Building2, Target, Users, Calendar,
   Pencil, X, Plus, ArrowLeft, Sparkles, Package, Store, Clock,
-  Instagram, Mail, Phone, ArrowUpRight, Megaphone, Menu,
+  Mail, ArrowUpRight, Megaphone, Menu,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────
@@ -267,8 +267,55 @@ function Onboarding({ tier, initial, onBack, onSubmit }) {
       fulfillment: "either", notes: "",
     }
   );
+  const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const valid = f.company && f.email && f.contactName;
+
+  const submit = async () => {
+    setBusy(true);
+    setErr("");
+    try {
+      await sendToEmail(
+        {
+          plan: `${tier.name} — ${tier.label} ($${tier.price}/mo)`,
+          company: f.company, website: f.website, industry: f.industry,
+          city: f.city, contact_name: f.contactName, email: f.email,
+          campaign_goal: f.campaignGoal, audience: f.audience, vibe: f.vibe,
+          fulfillment: FULFILLMENT.find((x) => x.id === f.fulfillment)?.label,
+          notes: f.notes, form: "Tier Booking",
+        },
+        `New ${tier.name} booking — ${f.company}`
+      );
+      setSent(true);
+    } catch (e) {
+      setErr("Something went wrong. Please try again or email us directly.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (sent) {
+    return (
+      <div className="mx-auto max-w-xl px-6 py-24 text-center">
+        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-gold">
+          <Check size={26} className="text-ink" />
+        </div>
+        <h1 className="font-display text-3xl font-bold text-ink">Thank you for submitting</h1>
+        <p className="mt-3 text-slate-600">
+          We've received your {tier.name} plan details for {f.company}. Our team
+          will be in contact soon regarding next steps.
+        </p>
+        <button
+          onClick={onBack}
+          className="mt-8 inline-flex items-center gap-1.5 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-ink hover:bg-slate-50"
+        >
+          <ArrowLeft size={16} /> Back to plans
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-12">
@@ -340,12 +387,13 @@ function Onboarding({ tier, initial, onBack, onSubmit }) {
         </section>
 
         <button
-          disabled={!valid}
-          onClick={() => onSubmit(f)}
+          disabled={!valid || busy}
+          onClick={submit}
           className="w-full rounded-xl bg-ink py-3.5 font-semibold text-white transition enabled:hover:bg-[#1f2740] disabled:opacity-40"
         >
-          {initial ? "Save changes" : `Start ${tier.name} — $${tier.price}/mo`}
+          {busy ? "Submitting…" : `Submit ${tier.name} — $${tier.price}/mo`}
         </button>
+        {err && <p className="text-center text-xs text-red-600">{err}</p>}
         {!valid && <p className="text-center text-xs text-slate-400">Company, contact name, and email are required.</p>}
       </div>
     </div>
@@ -612,17 +660,9 @@ function Contact() {
             and a real person gets back to you.
           </p>
           <div className="mt-8 space-y-4">
-            <a href="mailto:jake@bammediagroup.us" className="flex items-center gap-3 text-ink hover:opacity-70">
+            <a href="mailto:hello@bammediagroup.us" className="flex items-center gap-3 text-ink hover:opacity-70">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ink text-gold"><Mail size={17} /></span>
-              jake@bammediagroup.us
-            </a>
-            <a href="tel:+10000000000" className="flex items-center gap-3 text-ink hover:opacity-70">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ink text-gold"><Phone size={17} /></span>
-              Add your number
-            </a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="flex items-center gap-3 text-ink hover:opacity-70">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ink text-gold"><Instagram size={17} /></span>
-              @yourhandle
+              hello@bammediagroup.us
             </a>
           </div>
         </div>
