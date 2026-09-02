@@ -778,7 +778,7 @@ const HIW_STEPS = [
   {
     icon: Users,
     title: "We line up your creators",
-    body: "Our team sources vetted influencers that fit your brand and books them for the month — across any industry, not just food.",
+    body: "Our team sources vetted influencers that fit your brand and books them for the month.",
   },
   {
     icon: Check,
