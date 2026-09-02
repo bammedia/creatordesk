@@ -209,8 +209,8 @@ function TierSelect({ onPick }) {
           Creators on tap.
         </h1>
         <p className="mt-4 text-lg text-slate-600">
-          Pick a plan, tell us about your brand, and we book vetted influencers
-          for you every month. It's that simple.
+          Pick your plan, tell us about your brand, and we line up vetted
+          influencers to post for you every month. It's that simple.
         </p>
       </div>
 
@@ -245,7 +245,7 @@ function TierSelect({ onPick }) {
       </div>
 
       <p className="mt-8 text-sm text-slate-400">
-        All plans: vetted creators only · cancel anytime · we book & confirm, you schedule.
+        All plans: vetted creators only · cancel anytime · we book & schedule, you just confirm.
       </p>
 
       <div className="mt-16">
